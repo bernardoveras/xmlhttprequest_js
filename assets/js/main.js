@@ -1,34 +1,27 @@
-document.addEventListener('click', e => {
-  const element = e.target;
-  const tag = element.tagName.toLowerCase();
+axios('pessoas.json')
+.then(response => loadElements(response.data));
 
-  if(tag === 'a') {
-    e.preventDefault();
-    loadPage(element);
+function loadElements(json) {
+  const table = document.createElement('table');
+
+  for(let pessoa of json) {
+    const tr = document.createElement('tr');
+
+    let td = document.createElement('td');
+    td.innerHTML = pessoa.nome;
+    tr.appendChild(td);
+
+    td = document.createElement('td');
+    td.innerHTML = `${pessoa.idade} anos`;
+    tr.appendChild(td);
+
+    td = document.createElement('td');
+    td.innerHTML = `Salário: ${pessoa.salario} reais`;
+    tr.appendChild(td);
+
+    table.appendChild(tr);
   }
-});
 
-async function loadPage(element) {
-  try {
-    const href = element.getAttribute('href');
-    const response = await fetch(href);
-
-    if(response.status !== 200) throw new Error('ERRO 404!');
-
-    const html = await response.text();
-  
-    loadResult(html);
-  } catch (error) {
-    handleError(error);
-  }
-}
-
-function loadResult(response) {
   const result = document.querySelector('.result');
-  result.innerHTML = response;
-}
-
-function handleError(error){
-  const result = document.querySelector('.result');
-  result.innerHTML = error;
+  result.appendChild(table);
 }
