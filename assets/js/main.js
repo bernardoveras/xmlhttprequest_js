@@ -1,15 +1,16 @@
 const request = obj => {
-  const xhr = new XMLHttpRequest();
-
-  xhr.open(obj.method, obj.url, true);
-  xhr.send();
-  
-  xhr.addEventListener('load', () => {
-    if(xhr.status >= 200 && xhr.status < 300) {
-      obj.success(xhr.responseText);
-    } else {
-      obj.error(xhr.statusText);
-    }
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(obj.method, obj.url, true);
+    xhr.send();
+    
+    xhr.addEventListener('load', () => {
+      if(xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.responseText);
+      } else {
+        reject(xhr.statusText);
+      }
+    });
   });
 };
 
@@ -23,23 +24,24 @@ document.addEventListener('click', e => {
   }
 });
 
-function loadPage(element) {
-  const href = element.getAttribute('href');
-  console.log(href);
-
-  request({
-    method: 'GET',
-    url: href,
-    success(response) {
-      loadResult(response);
-    },
-    error(errorText) {
-      console.log(errorText);
-    }
-  });
+async function loadPage(element) {
+  try {
+    const href = element.getAttribute('href');
+  
+    const response = await request({method: 'GET', url: href});
+  
+    loadResult(response);
+  } catch (error) {
+    handleError(error);
+  }
 }
 
 function loadResult(response) {
   const result = document.querySelector('.result');
   result.innerHTML = response;
+}
+
+function handleError(error){
+  const result = document.querySelector('.result');
+  result.innerHTML = error;
 }
